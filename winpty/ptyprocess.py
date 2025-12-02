@@ -57,8 +57,7 @@ class PtyProcess(object):
         self.fd = self.fileobj.fileno()
 
     @classmethod
-    def spawn(cls, argv, cwd=None, env=None, dimensions=(24, 80),
-              backend=None):
+    def spawn(cls, argv, cwd=None, env=None, dimensions=(24, 80), backend=None):
         """Start the given command in a child process in a pseudo terminal.
 
         This does all the setting up the pty, and returns an instance of
@@ -79,23 +78,22 @@ class PtyProcess(object):
         command = _argv[0]
         env = env or os.environ
 
-        path = env.get('PATH', os.defpath)
-        command_with_path = which(command, path=path)
-        if command_with_path is None:
-            raise FileNotFoundError(
-                'The command was not found or was not ' +
-                'executable: %s.' % command
-            )
-        command = command_with_path
-        _argv[0] = command
+        # path = env.get('PATH', os.defpath)
+        # command_with_path = which(command, path=path)
+        # if command_with_path is None:
+        #     raise FileNotFoundError(
+        #         'The command was not found or was not ' +
+        #         'executable: %s.' % command
+        #     )
+        # command = command_with_path
+        # _argv[0] = command
         cmdline = ' ' + subprocess.list2cmdline(_argv[1:])
         cwd = cwd or os.getcwd()
 
         backend = backend or os.environ.get('PYWINPTY_BACKEND', None)
         backend = int(backend) if backend is not None else backend
 
-        proc = PTY(dimensions[1], dimensions[0],
-                   backend=backend)
+        proc = PTY(dimensions[1], dimensions[0], backend=backend)
 
         # Create the environment string.
         envStrs = []
@@ -362,9 +360,10 @@ def _read_in_thread(address, pty: PTY, blocking: bool):
                 try:
                     client.send(b'')
                 except socket.error:
-                    pass
-                finally:
+                    print("Socket error on EOF send")
                     break
+                finally:
+                    pass
 
             call += 1
         except Exception as e:
